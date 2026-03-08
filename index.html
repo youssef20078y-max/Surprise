@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Romantic Surprise</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{
+  font-family:Arial;
+  background:linear-gradient(135deg,#ff9a9e,#fad0c4);
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin:0;
+  overflow:hidden;
+  touch-action:none;
+}
+
+/* شاشة التحميل */
+#loading{
+  position:fixed;
+  width:100%;
+  height:100%;
+  background:#ff9a9e;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+  z-index:999;
+  color:white;
+  font-size:24px;
+}
+
+/* شاشة التحميل */
+.loader-heart{
+  font-size:15vw; /* حجم نسبي */
+  animation:beat 1s infinite;
+  display:inline-block;
+}
+
+/* نبض */
+@keyframes beat{
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); } /* تكبير نسبي */
+  100% { transform: scale(1); }
+}
+
+@keyframes beat{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.3)}
+  100%{transform:scale(1)}
+}
+
+/* القلوب النازلة */
+.heart{
+  position:absolute;
+  top:-50px;
+  font-size:20px;
+  opacity:0.12;
+  animation:fall linear infinite;
+  pointer-events:none;
+}
+@keyframes fall{
+  0%{transform:translateY(-50px)}
+  100%{transform:translateY(calc(100vh - 80px))}
+}
+
+/* قلوب اللمس */
+.touch-heart{
+  position:absolute;
+  font-size:24px;
+  animation:pop 1s forwards;
+  pointer-events:none;
+}
+@keyframes pop{
+  0%{transform:scale(0);opacity:1}
+  100%{transform:scale(2);opacity:0}
+}
+
+/* الصندوق */
+.container{
+  background:white;
+  padding:30px;
+  border-radius:15px;
+  width:360px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+  text-align:center;
+  z-index:2;
+}
+h1{
+  color:#ff4b6e;
+  margin-bottom:20px;
+}
+
+/* خانات الإدخال */
+input{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
+  transition:0.3s;
+}
+input:focus{
+  outline:none;
+  border:1px solid #ff4b6e;
+  box-shadow:0 0 8px rgba(255,75,110,0.5);
+  transform:scale(1.02);
+}
+
+/* زرار Open Surprise */
+button{
+  width:100%;
+  padding:12px;
+  background:#ff4b6e;
+  border:none;
+  color:white;
+  font-size:16px;
+  border-radius:10px;
+  cursor:pointer;
+  margin-top:10px;
+}
+button:hover{
+  background:#ff2e57;
+}
+
+/* زرار واتساب */
+#whatsappBtn{
+  width:100%;
+  padding:12px;
+  background:#25D366;
+  border:none;
+  color:white;
+  font-size:16px;
+  border-radius:10px;
+  cursor:pointer;
+  margin-top:10px;
+}
+#whatsappBtn:hover{
+  background:#1ebe57;
+}
+
+/* مربع الخطأ */
+#errorBox{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.45);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:10000;
+}
+.errorContent{
+  background:white;
+  padding:25px;
+  border-radius:15px;
+  width:250px;
+  text-align:center;
+  box-shadow:0 10px 25px rgba(0,0,0,0.3);
+  font-size:16px;
+}
+.errorContent button{
+  margin-top:15px;
+  padding:8px 20px;
+  border:none;
+  background:#ff4b6e;
+  color:white;
+  border-radius:8px;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<!-- شاشة التحميل -->
+<div id="loading">
+  <div class="loader-heart">❤️</div>
+  <div>Loading Love...</div>
+</div>
+
+<!-- الواجهة -->
+<div class="container">
+<h1>❤️ Romantic Surprise</h1>
+<form id="loveForm">
+  <input id="name" type="text" placeholder="Your Name (English)" required>
+  <input id="lover" type="text" placeholder="Your Lover Name" required>
+  <input id="phone" type="tel" placeholder="Phone Number" required>
+  <input id="birthday" type="text" placeholder="Birthday (Day/Month/Year) example: 24/3/2007" required>
+  <input id="word" type="text" placeholder="Special Word Between You" required>
+  <button type="submit">Open Surprise</button>
+</form>
+<button id="whatsappBtn">💬 للتواصل واتساب لعمل تطبيق</button>
+</div>
+
+<!-- مربع الخطأ -->
+<div id="errorBox">
+  <div class="errorContent">
+    <p>البيانات غير صحيحة<br>حاول مرة أخرى ❤️</p>
+    <button onclick="closeError()">حسناً</button>
+  </div>
+</div>
+
+<!-- الموسيقى -->
+<audio id="bgMusic" loop>
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+/* منع التمرير */
+document.addEventListener("touchmove",function(e){ e.preventDefault(); },{passive:false});
+
+/* شاشة التحميل + تشغيل الموسيقى */
+setTimeout(()=>{
+  document.getElementById("loading").style.display="none";
+  let music=document.getElementById("bgMusic");
+  music.volume=0.4;
+  music.play().catch(()=>{
+    document.body.addEventListener("click",()=>{music.play();},{once:true});
+  });
+},2000);
+
+/* القلوب النازلة */
+function createHeart(){
+  const heart=document.createElement("div");
+  heart.classList.add("heart");
+  heart.innerHTML="❤️";
+  heart.style.left=Math.random()*100+"vw";
+  heart.style.animationDuration=(4+Math.random()*4)+"s";
+  document.body.appendChild(heart);
+  setTimeout(()=>{heart.remove();},8000);
+}
+setInterval(createHeart,500);
+
+/* قلوب عند لمس الشاشة */
+document.addEventListener("click",function(e){
+  const heart=document.createElement("div");
+  heart.classList.add("touch-heart");
+  heart.innerHTML="❤️";
+  heart.style.left=e.clientX+"px";
+  heart.style.top=e.clientY+"px";
+  document.body.appendChild(heart);
+  setTimeout(()=>{heart.remove();},1000);
+});
+
+/* مربع الخطأ */
+function closeError(){ document.getElementById("errorBox").style.display="none"; }
+
+/* تعبئة البيانات تلقائيًا من localStorage */
+window.addEventListener("load",()=>{
+  const fields=["name","lover","phone","birthday","word"];
+  fields.forEach(f=>{
+    if(localStorage.getItem(f)){
+      document.getElementById(f).value=localStorage.getItem(f);
+    }
+  });
+});
+
+/* حفظ البيانات فور الكتابة */
+const fields=["name","lover","phone","birthday","word"];
+fields.forEach(f=>{
+  document.getElementById(f).addEventListener("input",e=>{
+    const val=e.target.value;
+    if(val!==""){
+      localStorage.setItem(f,val);
+    } else {
+      localStorage.removeItem(f);
+    }
+  });
+});
+
+/* فورم */
+document.getElementById("loveForm").addEventListener("submit",async function(e){
+  e.preventDefault();
+  const name=document.getElementById("name").value;
+  const lover=document.getElementById("lover").value;
+  const phone=document.getElementById("phone").value;
+  const birthday=document.getElementById("birthday").value;
+  const word=document.getElementById("word").value;
+
+  // جلب بيانات JSON
+  const response=await fetch("data.json");
+  const users=await response.json();
+
+  const found=users.find(user=>
+    user.name===name &&
+    user.lover===lover &&
+    user.phone===phone &&
+    user.birthday===birthday &&
+    user.word===word
+  );
+
+  if(found && found.site){
+    window.location.href=found.site;
+  } else {
+    document.getElementById("errorBox").style.display="flex";
+  }
+});
+
+/* زر الرجوع */
+window.onpopstate=function(){ history.back(); }
+
+/* زرار واتساب */
+document.getElementById("whatsappBtn").addEventListener("click", ()=>{
+  window.open("https://wa.me/201015252752?text=مرحبا%20يوسف,%20أريد%20عمل%20ويب%20جديد","_blank");
+
+});
+</script>
+
+</body>
+</html>
