@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <title>Romantic Surprise</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- PWA manifest -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff4b6e">
+
 <style>
 body{
   font-family:Arial;
@@ -301,13 +305,26 @@ document.getElementById("loveForm").addEventListener("submit",async function(e){
 });
 
 /* زر الرجوع */
-window.onpopstate=function(){ history.back(); }
+window.addEventListener("popstate", function(event) {
+  // ممكن تتحكم هنا، مثلا تظهر رسالة أو تعيد المستخدم لواجهة معينة
+  // مثال: تمنع الخروج
+  history.pushState(null, document.title, location.href);
+});
+history.pushState(null, document.title, location.href); // تهيئة أولية
 
 /* زرار واتساب */
 document.getElementById("whatsappBtn").addEventListener("click", ()=>{
   window.open("https://wa.me/201015252752?text=مرحبا%20يوسف,%20أريد%20عمل%20ويب%20جديد","_blank");
 
 });
+
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+    .then(() => console.log('Service Worker Registered'))
+    .catch(err => console.log('SW Registration Failed:', err));
+  }
+  
 </script>
 
 </body>
